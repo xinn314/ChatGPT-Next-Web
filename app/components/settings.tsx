@@ -38,9 +38,10 @@ function SettingItem(props: {
   title: string;
   subTitle?: string;
   children: JSX.Element;
+  className?: string;
 }) {
   return (
-    <ListItem>
+    <ListItem className={props.className}>
       <div className={styles["settings-title"]}>
         <div>{props.title}</div>
         {props.subTitle && (
@@ -232,6 +233,7 @@ export function Settings(props: { closeSettings: () => void }) {
                 ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
                 : Locale.Settings.Update.IsLatest
             }
+            className="none"
           >
             {checkingUpdate ? (
               <div />
@@ -442,7 +444,7 @@ export function Settings(props: { closeSettings: () => void }) {
           </SettingItem>
         </List>
 
-        <List>
+        {/* <List>
           <SettingItem
             title={Locale.Settings.Prompt.Disable.Title}
             subTitle={Locale.Settings.Prompt.Disable.SubTitle}
@@ -472,10 +474,10 @@ export function Settings(props: { closeSettings: () => void }) {
               onClick={() => showToast(Locale.WIP)}
             />
           </SettingItem>
-        </List>
+        </List> */}
 
         <List>
-          <SettingItem title={Locale.Settings.Model}>
+          {/*           <SettingItem title={Locale.Settings.Model} className='none'>
             <select
               value={config.modelConfig.model}
               onChange={(e) => {
@@ -493,7 +495,7 @@ export function Settings(props: { closeSettings: () => void }) {
                 </option>
               ))}
             </select>
-          </SettingItem>
+          </SettingItem> */}
           <SettingItem
             title={Locale.Settings.Temperature.Title}
             subTitle={Locale.Settings.Temperature.SubTitle}
