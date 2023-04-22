@@ -7,10 +7,10 @@ import { getBuildConfig } from "./config/build";
 const buildConfig = getBuildConfig();
 
 export const metadata = {
-  title: "Robot Assistant",
+  title: " AssistBot",
   description: "Your personal Robot Assistant.",
   appleWebApp: {
-    title: "Robot Assistant",
+    title: "AssistBot",
     statusBarStyle: "default",
   },
   themeColor: "#fafafa",

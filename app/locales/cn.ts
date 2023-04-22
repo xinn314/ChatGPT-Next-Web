@@ -9,7 +9,7 @@ const cn = {
     ChatItemCount: (count: number) => `${count} 条对话`,
   },
   Chat: {
-    SubTitle: (count: number) => `与 ChatGPT 的 ${count} 条对话`,
+    SubTitle: (count: number) => `共 ${count} 条对话`,
     Actions: {
       ChatList: "查看消息列表",
       CompressedHistory: "查看压缩后的历史 Prompt",
@@ -26,7 +26,7 @@ const cn = {
       if (submitKey === String(SubmitKey.Enter)) {
         inputHints += "，Shift + Enter 换行";
       }
-      return inputHints + "，/ 触发补全";
+      return inputHints + "，空格触发补全";
     },
     Send: "发送",
   },
@@ -35,7 +35,7 @@ const cn = {
     Copy: "全部复制",
     Download: "下载文件",
     MessageFromYou: "来自你的消息",
-    MessageFromChatGPT: "来自 ChatGPT 的消息",
+    MessageFromChatGPT: "来自 Robot 的消息",
   },
   Memory: {
     Title: "历史摘要",
@@ -99,7 +99,7 @@ const cn = {
     Prompt: {
       Disable: {
         Title: "禁用提示词自动补全",
-        SubTitle: "在输入框开头输入 / 即可触发自动补全",
+        SubTitle: "在输入框开头输入空格即可触发自动补全",
       },
       List: "自定义提示词列表",
       ListCount: (builtin: number, custom: number) =>

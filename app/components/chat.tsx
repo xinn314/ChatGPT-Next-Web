@@ -6,6 +6,7 @@ import BrainIcon from "../icons/brain.svg";
 import RenameIcon from "../icons/rename.svg";
 import ExportIcon from "../icons/share.svg";
 import ReturnIcon from "../icons/return.svg";
+import ClearIcon from "../icons/clear.svg";
 import CopyIcon from "../icons/copy.svg";
 import DownloadIcon from "../icons/download.svg";
 import LoadingIcon from "../icons/three-dots.svg";
@@ -18,7 +19,6 @@ import MinIcon from "../icons/min.svg";
 
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
-import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 
@@ -178,7 +178,7 @@ function PromptToast(props: {
             actions={[
               <IconButton
                 key="reset"
-                icon={<CopyIcon />}
+                icon={<ClearIcon />}
                 bordered
                 text={Locale.Memory.Reset}
                 onClick={() =>
@@ -228,7 +228,7 @@ function PromptToast(props: {
                       }
                     />
                     <IconButton
-                      icon={<DeleteIcon />}
+                      icon={<ClearIcon />}
                       className={chatStyle["context-delete-button"]}
                       onClick={() => removeContextPrompt(i)}
                       bordered
@@ -363,11 +363,12 @@ export function ChatActions(props: {
   hitBottom: boolean;
 }) {
   const config = useAppConfig();
+  const chatStore = useChatStore();
 
   // switch themes
   const theme = config.theme;
   function nextTheme() {
-    const themes = [Theme.Auto, Theme.Light, Theme.Dark];
+    const themes = [Theme.Light, Theme.Dark];
     const themeIndex = themes.indexOf(theme);
     const nextIndex = (themeIndex + 1) % themes.length;
     const nextTheme = themes[nextIndex];
@@ -396,26 +397,26 @@ export function ChatActions(props: {
           <BottomIcon />
         </div>
       )}
-      {props.hitBottom && (
-        <div
-          className={`${chatStyle["chat-input-action"]} clickable`}
-          onClick={props.showPromptModal}
-        >
-          <BrainIcon />
-        </div>
-      )}
+      <div
+        className={`${chatStyle["chat-input-action"]} clickable`}
+        onClick={props.showPromptModal}
+      >
+        <BrainIcon />
+      </div>
 
       <div
         className={`${chatStyle["chat-input-action"]} clickable`}
         onClick={nextTheme}
       >
-        {theme === Theme.Auto ? (
-          <AutoIcon />
-        ) : theme === Theme.Light ? (
-          <LightIcon />
-        ) : theme === Theme.Dark ? (
-          <DarkIcon />
-        ) : null}
+        {theme === Theme.Light ? <LightIcon /> : <DarkIcon />}
+      </div>
+      <div
+        className={`${chatStyle["chat-input-action"]} clickable`}
+        onClick={() =>
+          confirm(Locale.Memory.ResetConfirm) && chatStore.resetSession()
+        }
+      >
+        <ClearIcon />
       </div>
     </div>
   );
@@ -489,14 +490,14 @@ export function Chat() {
   const SEARCH_TEXT_LIMIT = 30;
   const onInput = (text: string) => {
     setUserInput(text);
-    const n = text.trim().length;
+    const n = text.length;
 
     // clear search results
     if (n === 0) {
       setPromptHints([]);
     } else if (!config.disablePromptHint && n < SEARCH_TEXT_LIMIT) {
       // check if need to trigger auto completion
-      if (text.startsWith("/")) {
+      if (text.startsWith(" ")) {
         let searchText = text.slice(1);
         onSearch(searchText);
       }
