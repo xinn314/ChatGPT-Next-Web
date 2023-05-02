@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { StoreKey } from "../constant";
 
 export enum SubmitKey {
   Enter = "Enter",
@@ -10,30 +11,31 @@ export enum SubmitKey {
 }
 
 export enum Theme {
-  Auto = "auto",
-  Dark = "dark",
   Light = "light",
+  Dark = "dark",
 }
 
-const DEFAULT_CONFIG = {
-  historyMessageCount: 4,
-  compressMessageLengthThreshold: 1000,
-  sendBotMessages: true as boolean,
-  submitKey: SubmitKey.Enter as SubmitKey,
-  avatar: "1f436",
+export const DEFAULT_CONFIG = {
+  submitKey: SubmitKey.CtrlEnter as SubmitKey,
+  avatar: "1f603",
   fontSize: 14,
-  theme: Theme.Auto as Theme,
+  theme: Theme.Light as Theme,
   tightBorder: false,
-  sendPreviewBubble: false,
+  sendPreviewBubble: true,
   sidebarWidth: 300,
 
   disablePromptHint: false,
+
+  dontShowMaskSplashScreen: true, // dont show splash screen when create chat
 
   modelConfig: {
     model: "gpt-3.5-turbo" as ModelType,
     temperature: 1,
     max_tokens: 2000,
     presence_penalty: 0,
+    sendMemory: true,
+    historyMessageCount: 4,
+    compressMessageLengthThreshold: 1000,
   },
 };
 
@@ -107,11 +109,9 @@ export const ModalConfigValidator = {
     return limitNumber(x, -2, 2, 0);
   },
   temperature(x: number) {
-    return limitNumber(x, 0, 2, 1);
+    return limitNumber(x, 0, 1, 1);
   },
 };
-
-const CONFIG_KEY = "app-config";
 
 export const useAppConfig = create<ChatConfigStore>()(
   persist(
@@ -129,7 +129,19 @@ export const useAppConfig = create<ChatConfigStore>()(
       },
     }),
     {
-      name: CONFIG_KEY,
+      name: StoreKey.Config,
+      version: 2,
+      migrate(persistedState, version) {
+        if (version === 2) return persistedState as any;
+
+        const state = persistedState as ChatConfig;
+        state.modelConfig.sendMemory = true;
+        state.modelConfig.historyMessageCount = 4;
+        state.modelConfig.compressMessageLengthThreshold = 1000;
+        state.dontShowMaskSplashScreen = false;
+
+        return state;
+      },
     },
   ),
 );

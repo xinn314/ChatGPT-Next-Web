@@ -14,9 +14,8 @@ const TIME_OUT_MS = 60000;
 const makeRequestParam = (
   messages: Message[],
   options?: {
-    filterBot?: boolean;
     stream?: boolean;
-    model?: ModelType;
+    overrideModel?: ModelType;
   },
 ): ChatRequest => {
   let sendMessages = messages.map((v) => ({
@@ -24,25 +23,22 @@ const makeRequestParam = (
     content: v.content,
   }));
 
-  if (options?.filterBot) {
-    sendMessages = sendMessages.filter((m) => m.role !== "assistant");
-  }
-
-  const modelConfig = { ...useAppConfig.getState().modelConfig };
-
-  // @yidadaa: wont send max_tokens, because it is nonsense for Muggles
-  // @ts-expect-error
-  delete modelConfig.max_tokens;
+  const modelConfig = {
+    ...useAppConfig.getState().modelConfig,
+    ...useChatStore.getState().currentSession().mask.modelConfig,
+  };
 
   // override model config
-  if (options?.model) {
-    modelConfig.model = options.model;
+  if (options?.overrideModel) {
+    modelConfig.model = options.overrideModel;
   }
 
   return {
     messages: sendMessages,
     stream: options?.stream,
-    ...modelConfig,
+    model: modelConfig.model,
+    temperature: modelConfig.temperature,
+    presence_penalty: modelConfig.presence_penalty,
   };
 };
 
@@ -81,8 +77,7 @@ export async function requestChat(
   },
 ) {
   const req: ChatRequest = makeRequestParam(messages, {
-    filterBot: true,
-    model: options?.model,
+    overrideModel: options?.model,
   });
 
   const res = await requestOpenaiClient("v1/chat/completions")(req);
@@ -101,11 +96,11 @@ export async function requestUsage() {
       .getDate()
       .toString()
       .padStart(2, "0")}`;
-  const ONE_DAY = 2 * 24 * 60 * 60 * 1000;
-  const now = new Date(Date.now() + ONE_DAY);
+  const ONE_DAY = 1 * 24 * 60 * 60 * 1000;
+  const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startDate = formatDate(startOfMonth);
-  const endDate = formatDate(now);
+  const endDate = formatDate(new Date(Date.now() + ONE_DAY));
 
   const [used, subs] = await Promise.all([
     requestOpenaiClient(
@@ -148,9 +143,8 @@ export async function requestUsage() {
 export async function requestChatStream(
   messages: Message[],
   options?: {
-    filterBot?: boolean;
     modelConfig?: ModelConfig;
-    model?: ModelType;
+    overrideModel?: ModelType;
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
@@ -158,8 +152,7 @@ export async function requestChatStream(
 ) {
   const req = makeRequestParam(messages, {
     stream: true,
-    filterBot: options?.filterBot,
-    model: options?.model,
+    overrideModel: options?.overrideModel,
   });
 
   console.log("[Request] ", req);
