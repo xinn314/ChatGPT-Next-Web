@@ -23,12 +23,12 @@ export const DEFAULT_CONFIG = {
   fontSize: 14,
   theme: Theme.Auto as Theme,
   tightBorder: !!getClientConfig()?.isApp,
-  sendPreviewBubble: true,
+  sendPreviewBubble: false,
   sidebarWidth: 300,
 
   disablePromptHint: false,
 
-  dontShowMaskSplashScreen: false, // dont show splash screen when create chat
+  dontShowMaskSplashScreen: true, // dont show splash screen when create chat
 
   modelConfig: {
     model: "gpt-3.5-turbo-16k-0613" as ModelType,
@@ -38,7 +38,7 @@ export const DEFAULT_CONFIG = {
     frequency_penalty: 0,
     sendMemory: true,
     historyMessageCount: 6,
-    compressMessageLengthThreshold: 1000,
+    compressMessageLengthThreshold: 2000,
     template: DEFAULT_INPUT_TEMPLATE,
   },
 };
